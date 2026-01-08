@@ -37,41 +37,47 @@
   - **Property 17: Export format validation**
   - **Validates: Requirements 4.5**
 
-- [ ]* 2.2 Write property test for article data extraction
+- [x] 2.2 Write property test for article data extraction
+
   - **Property 2: Article data extraction completeness**
   - **Validates: Requirements 1.2**
 
-- [ ] 3. Build news fetcher component
+- [x] 3. Build news fetcher component
   - Implement Yahoo Finance RSS feed parser and web scraper
   - Add retry mechanism with exponential backoff for network failures
   - Create duplicate detection and filtering logic
   - Implement rate limiting and respectful crawling practices
   - _Requirements: 1.1, 1.3, 1.4_
 
-- [ ]* 3.1 Write property test for news collection time window
+- [x] 3.1 Write property test for news collection time window
+
   - **Property 1: News collection time window compliance**
   - **Validates: Requirements 1.1**
 
-- [ ]* 3.2 Write property test for network retry behavior
+- [x] 3.2 Write property test for network retry behavior
+
   - **Property 3: Network retry behavior**
   - **Validates: Requirements 1.3**
 
-- [ ]* 3.3 Write property test for duplicate filtering
+- [x] 3.3 Write property test for duplicate filtering
+
   - **Property 4: Duplicate article filtering**
   - **Validates: Requirements 1.4**
 
-- [ ] 4. Implement content processor and sentiment analyzer
+- [x] 4. Implement content processor and sentiment analyzer
   - Create text cleaning and normalization functions
   - Integrate sentiment analysis library (VADER or TextBlob)
   - Implement sentiment score validation and bounds checking
   - Add error handling for malformed content
   - _Requirements: 2.1, 2.5, 5.1_
 
-- [ ]* 4.1 Write property test for sentiment score bounds
+- [x] 4.1 Write property test for sentiment score bounds
+
   - **Property 6: Sentiment score bounds**
   - **Validates: Requirements 2.1**
 
-- [ ]* 4.2 Write property test for error resilience
+- [x] 4.2 Write property test for error resilience
+
   - **Property 18: Error resilience**
   - **Validates: Requirements 5.1**
 

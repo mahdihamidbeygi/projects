@@ -27,6 +27,12 @@ class RateLimitError(NewsFetchError):
     pass
 
 
+class ParsingError(NewsFetchError):
+    """Raised when content parsing operations fail."""
+
+    pass
+
+
 class ContentProcessingError(NewsMarketPredictorError):
     """Raised when content processing operations fail."""
 

@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\urllib3\util\retry.py
+# hypothesis_version: 6.148.7
+
+[120, 413, 429, 503, 'Authorization', 'Cookie', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'Proxy-Authorization', 'RequestHistory', 'Retry-After', 'TRACE', '^\\s*[0-9]+\\s*$', 'allowed_methods', 'error', 'method', 'method_whitelist', 'redirect_location', 'status', 'too many redirects', 'unknown', 'url']

@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\projects\news_market_predictor\analyzer\sentiment_analyzer.py
+# hypothesis_version: 6.148.7
+
+[-1.0, -0.1, 0.0, 0.1, 0.2, 0.6, 1.0, 10.0, 50.0, 100, '...', '[.!?]+', 'acquisition', 'bankruptcy', 'bear', 'bearish', 'beat', 'below', 'bull', 'bullish', 'buy', 'compound', 'concern', 'cut', 'decline', 'dividend', 'down', 'downgrade', 'drop', 'earnings', 'exceed', 'expansion', 'fall', 'gain', 'growth', 'increase', 'investigation', 'layoff', 'loss', 'merger', 'miss', 'negative', 'neutral', 'outperform', 'positive', 'profit', 'reduce', 'revenue', 'rise', 'risk', 'sell', 'strong', 'success', 'underperform', 'up', 'upgrade', 'warning', 'weak']
