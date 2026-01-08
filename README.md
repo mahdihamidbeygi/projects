@@ -1,60 +1,88 @@
-# Data Science Projects Collection
+# News Market Predictor
 
-This repository contains a collection of data science projects and analyses covering various domains and datasets. Each project focuses on different aspects of data analysis, machine learning, and statistical inference.
+A system for analyzing Yahoo Finance news articles and predicting their potential impact on stock market movements.
 
-## Projects Overview
+## Project Structure
 
-### 1. House Price Prediction
-- **File**: `house-price.ipynb`
-- A machine learning project focused on predicting house prices using various features and regression techniques.
+```
+news_market_predictor/
+├── __init__.py                 # Package initialization
+├── main.py                     # Main application entry point
+├── models.py                   # Core data models
+├── interfaces.py               # Abstract base classes and interfaces
+├── config.py                   # Configuration management
+├── logging_config.py           # Logging setup
+├── exceptions.py               # Custom exceptions
+├── fetcher/                    # News fetching components
+│   └── __init__.py
+├── analyzer/                   # News analysis components
+│   └── __init__.py
+├── predictor/                  # Market prediction components
+│   └── __init__.py
+└── storage/                    # Data storage components
+    └── __init__.py
 
-### 2. Android App Market Analysis
-- **Directory**: `The Android App Market on Google Play/`
-- Analysis of the Google Play Store app market, including trends, ratings, and market dynamics.
+tests/                          # Test suite
+├── __init__.py
+├── test_models.py              # Tests for data models
+└── test_config.py              # Tests for configuration
 
-### 3. GitHub History of Scala Language
-- **File**: `The_GitHub_History_of_the_Scala_Language.ipynb`
-- Analysis of the Scala programming language's development history through GitHub data.
+requirements.txt                # Python dependencies
+setup.py                        # Package setup configuration
+```
 
-### 4. Titanic Survival Analysis
-- **File**: `titanic.ipynb`
-- Classic machine learning project analyzing factors affecting survival rates on the Titanic.
+## Installation
 
-### 5. Netflix Movies and The Office Analysis
-- **Directory**: `Investigating Netflix Movies and Guest Stars in The Office/`
-- Analysis of Netflix movies and guest appearances in The Office TV show.
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### 6. Credit Card Approval Prediction
-- **Directory**: `Predicting Credit Card Approvals/`
-- Machine learning project focused on predicting credit card approval decisions.
+2. Install the package in development mode:
+```bash
+pip install -e .
+```
 
-### 7. Nobel Prize Winners Analysis
-- **Directory**: `A Visual History of Nobel Prize Winners/`
-- Data visualization and analysis of Nobel Prize winners throughout history.
+## Usage
 
-### 8. Dr. Semmelweis and Handwashing Discovery
-- **Directory**: `Dr. Semmelweis and the Discovery of Handwashing/`
-- Statistical analysis of Dr. Semmelweis's discovery of handwashing's impact on patient outcomes.
+Run the main application:
+```bash
+python -m news_market_predictor.main
+```
 
-## Getting Started
+Or use the console script:
+```bash
+news-predictor
+```
 
-Each project is contained in its own directory or Jupyter notebook file. To explore a specific project:
+## Configuration
 
-1. Navigate to the project directory or open the Jupyter notebook file
-2. Install the required dependencies (typically listed in the project files)
-3. Run the Jupyter notebook to see the analysis and results
+The application can be configured using environment variables:
 
-## Requirements
+- `MAX_RETRIES`: Maximum number of retry attempts (default: 3)
+- `RETRY_DELAY`: Delay between retries in seconds (default: 1.0)
+- `TIMEOUT`: Network timeout in seconds (default: 30)
+- `BATCH_SIZE`: Processing batch size (default: 10)
+- `LOG_LEVEL`: Logging level (default: INFO)
+- `DATABASE_URL`: Database connection URL
 
-Most projects require:
-- Python 3.x
-- Jupyter Notebook
-- Common data science libraries (pandas, numpy, matplotlib, seaborn, scikit-learn)
+## Testing
 
-## License
+Run the test suite:
+```bash
+pytest tests/ -v
+```
 
-This repository is for educational and demonstration purposes. Please check individual project files for specific licensing information.
+## Architecture
 
-## Contributing
+The system follows a modular pipeline architecture with the following components:
 
-Feel free to fork this repository and submit pull requests for improvements or additional analyses. 
+1. **News Fetcher**: Retrieves articles from Yahoo Finance
+2. **Content Processor**: Cleans and normalizes article text
+3. **Sentiment Analyzer**: Analyzes emotional tone and market sentiment
+4. **Entity Extractor**: Identifies stock symbols and financial metrics
+5. **Market Predictor**: Generates impact predictions
+6. **Results Aggregator**: Combines and weights predictions
+7. **Data Storage**: Persists articles and predictions
+
+Each component implements abstract interfaces defined in `interfaces.py`, ensuring modularity and testability.
