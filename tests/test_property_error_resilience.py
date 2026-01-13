@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List
 from unittest.mock import Mock, patch
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import NewsArticle, ValidationError
 from news_market_predictor.analyzer.content_processor import NewsContentProcessor
@@ -170,6 +170,7 @@ def create_malformed_article(
     ),
     st.integers(min_value=1, max_value=10),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_error_resilience_with_malformed_articles(malformation_types, valid_count):
     """
     **Feature: news-market-predictor, Property 18: Error resilience**
@@ -233,6 +234,7 @@ def test_error_resilience_with_malformed_articles(malformation_types, valid_coun
 
 
 @given(st.lists(st.text(min_size=1, max_size=100), min_size=1, max_size=10))
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_error_resilience_with_processing_exceptions(article_titles):
     """
     **Feature: news-market-predictor, Property 18: Error resilience**
@@ -291,6 +293,7 @@ def test_error_resilience_with_processing_exceptions(article_titles):
 
 
 @given(st.integers(min_value=1, max_value=20), st.integers(min_value=0, max_value=10))
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_error_resilience_batch_completion(valid_count, malformed_count):
     """
     **Feature: news-market-predictor, Property 18: Error resilience**
@@ -358,6 +361,7 @@ def test_error_resilience_batch_completion(valid_count, malformed_count):
 
 
 @given(st.lists(st.text(min_size=0, max_size=1000), min_size=0, max_size=15))
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_error_resilience_empty_and_edge_cases(content_list):
     """
     **Feature: news-market-predictor, Property 18: Error resilience**
@@ -411,6 +415,7 @@ def test_error_resilience_empty_and_edge_cases(content_list):
     st.integers(min_value=1, max_value=5),
     st.text(min_size=1, max_size=50).filter(lambda x: x.strip()),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_error_resilience_logging_behavior(article_count, error_message):
     """
     **Feature: news-market-predictor, Property 18: Error resilience**

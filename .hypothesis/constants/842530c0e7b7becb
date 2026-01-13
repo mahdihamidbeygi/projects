@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\projects\news_market_predictor\aggregator\prediction_pipeline.py
+# hypothesis_version: 6.148.7
+
+[0.3, 0.4, 0.7, 1.0, 1.5, 'average_confidence', 'confidence_analysis', 'confidence_stability', 'csv', 'error', 'high_risk', 'increasingly_bearish', 'increasingly_bullish', 'insights', 'insufficient_data', 'json', 'low_risk', 'medium_risk', 'mixed_signals', 'negative', 'positive', 'prediction_trend', 'risk_assessment', 'stable', 'variable']

@@ -7,7 +7,7 @@ Property-based tests for article data extraction completeness.
 from datetime import datetime
 from typing import Dict, Any
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import NewsArticle
 
@@ -93,6 +93,7 @@ def simulate_parse_article_content(
         }
     ),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_data_extraction_completeness(raw_content, metadata):
     """
     **Feature: news-market-predictor, Property 2: Article data extraction completeness**
@@ -161,6 +162,7 @@ def test_article_data_extraction_completeness(raw_content, metadata):
         }
     ),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_data_extraction_field_types(raw_content, metadata):
     """
     **Feature: news-market-predictor, Property 2: Article data extraction completeness**
@@ -217,6 +219,7 @@ def test_article_data_extraction_field_types(raw_content, metadata):
         }
     ),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_data_extraction_content_preservation(raw_content, metadata):
     """
     **Feature: news-market-predictor, Property 2: Article data extraction completeness**

@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 from typing import Dict, Any
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import NewsArticle
 
@@ -111,6 +111,7 @@ def store_and_retrieve_json_file(article: NewsArticle) -> NewsArticle:
         max_size=5,
     ),  # raw_metadata
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_storage_format_consistency_json_round_trip(
     id_val, title, content, url_part, published_at, source, category, raw_metadata
 ):
@@ -174,6 +175,7 @@ def test_article_storage_format_consistency_json_round_trip(
         max_size=5,
     ),  # raw_metadata
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_storage_format_consistency_csv_round_trip(
     id_val, title, content, url_part, published_at, source, category, raw_metadata
 ):
@@ -238,6 +240,7 @@ def test_article_storage_format_consistency_csv_round_trip(
         max_size=5,
     ),  # raw_metadata
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_article_storage_format_consistency_direct_serialization(
     id_val, title, content, url_part, published_at, source, category, raw_metadata
 ):

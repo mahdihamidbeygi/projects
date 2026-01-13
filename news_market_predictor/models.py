@@ -4,8 +4,8 @@ Core data models for the News Market Predictor system.
 
 import json
 import csv
-from datetime import datetime
-from typing import Dict, List, Any, Union
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Union, Optional
 from dataclasses import dataclass, asdict
 from io import StringIO
 
@@ -352,9 +352,209 @@ class MarketPrediction:
             ) from e
 
 
+@dataclass
+class MarketOutcome:
+    """Actual market outcome for a stock after a prediction."""
+
+    prediction_id: str
+    stock_symbol: str
+    actual_direction: str  # positive, negative, neutral
+    actual_magnitude: float  # 0.0 to 1.0
+    price_change_percent: float  # actual percentage change
+    evaluation_date: datetime  # when the outcome was measured
+    time_horizon_hours: int  # hours after prediction when measured
+
+    def validate(self) -> bool:
+        """Validate MarketOutcome data with proper type checking."""
+        if not isinstance(self.prediction_id, str) or not self.prediction_id.strip():
+            raise ValidationError("Prediction ID must be a non-empty string")
+
+        if not isinstance(self.stock_symbol, str) or not self.stock_symbol.strip():
+            raise ValidationError("Stock symbol must be a non-empty string")
+
+        if self.actual_direction not in ["positive", "negative", "neutral"]:
+            raise ValidationError(
+                "Actual direction must be 'positive', 'negative', or 'neutral'"
+            )
+
+        if not isinstance(self.actual_magnitude, (int, float)):
+            raise ValidationError("Actual magnitude must be a number")
+
+        if not 0.0 <= self.actual_magnitude <= 1.0:
+            raise ValidationError("Actual magnitude must be between 0.0 and 1.0")
+
+        if not isinstance(self.price_change_percent, (int, float)):
+            raise ValidationError("Price change percent must be a number")
+
+        if not isinstance(self.evaluation_date, datetime):
+            raise ValidationError("Evaluation date must be a datetime object")
+
+        if not isinstance(self.time_horizon_hours, int) or self.time_horizon_hours <= 0:
+            raise ValidationError("Time horizon hours must be a positive integer")
+
+        return True
+
+    def to_json(self) -> str:
+        """Serialize MarketOutcome to JSON format."""
+        self.validate()
+        data = asdict(self)
+        data["evaluation_date"] = self.evaluation_date.isoformat()
+        return json.dumps(data, indent=2)
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "MarketOutcome":
+        """Deserialize MarketOutcome from JSON format."""
+        try:
+            data = json.loads(json_str)
+            data["evaluation_date"] = datetime.fromisoformat(data["evaluation_date"])
+            outcome = cls(**data)
+            outcome.validate()
+            return outcome
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            raise ValidationError(f"Invalid JSON format for MarketOutcome: {e}") from e
+
+    def to_csv_row(self) -> Dict[str, Any]:
+        """Convert MarketOutcome to CSV row format."""
+        self.validate()
+        return {
+            "prediction_id": self.prediction_id,
+            "stock_symbol": self.stock_symbol,
+            "actual_direction": self.actual_direction,
+            "actual_magnitude": self.actual_magnitude,
+            "price_change_percent": self.price_change_percent,
+            "evaluation_date": self.evaluation_date.isoformat(),
+            "time_horizon_hours": self.time_horizon_hours,
+        }
+
+    @classmethod
+    def from_csv_row(cls, row: Dict[str, Any]) -> "MarketOutcome":
+        """Create MarketOutcome from CSV row format."""
+        try:
+            row["evaluation_date"] = datetime.fromisoformat(row["evaluation_date"])
+            row["actual_magnitude"] = float(row["actual_magnitude"])
+            row["price_change_percent"] = float(row["price_change_percent"])
+            row["time_horizon_hours"] = int(row["time_horizon_hours"])
+            outcome = cls(**row)
+            outcome.validate()
+            return outcome
+        except (KeyError, ValueError, TypeError) as e:
+            raise ValidationError(
+                f"Invalid CSV row format for MarketOutcome: {e}"
+            ) from e
+
+
+@dataclass
+class HistoricalAccuracy:
+    """Historical accuracy metrics for predictions."""
+
+    stock_symbol: str
+    time_period_days: int
+    total_predictions: int
+    correct_predictions: int
+    accuracy_rate: float  # 0.0 to 1.0
+    average_confidence: float  # 0.0 to 1.0
+    calculated_at: datetime
+
+    def validate(self) -> bool:
+        """Validate HistoricalAccuracy data with proper type checking."""
+        if not isinstance(self.stock_symbol, str) or not self.stock_symbol.strip():
+            raise ValidationError("Stock symbol must be a non-empty string")
+
+        if not isinstance(self.time_period_days, int) or self.time_period_days <= 0:
+            raise ValidationError("Time period days must be a positive integer")
+
+        if not isinstance(self.total_predictions, int) or self.total_predictions < 0:
+            raise ValidationError("Total predictions must be a non-negative integer")
+
+        if (
+            not isinstance(self.correct_predictions, int)
+            or self.correct_predictions < 0
+        ):
+            raise ValidationError("Correct predictions must be a non-negative integer")
+
+        if self.correct_predictions > self.total_predictions:
+            raise ValidationError("Correct predictions cannot exceed total predictions")
+
+        if not isinstance(self.accuracy_rate, (int, float)):
+            raise ValidationError("Accuracy rate must be a number")
+
+        if not 0.0 <= self.accuracy_rate <= 1.0:
+            raise ValidationError("Accuracy rate must be between 0.0 and 1.0")
+
+        if not isinstance(self.average_confidence, (int, float)):
+            raise ValidationError("Average confidence must be a number")
+
+        if not 0.0 <= self.average_confidence <= 1.0:
+            raise ValidationError("Average confidence must be between 0.0 and 1.0")
+
+        if not isinstance(self.calculated_at, datetime):
+            raise ValidationError("Calculated date must be a datetime object")
+
+        return True
+
+    def to_json(self) -> str:
+        """Serialize HistoricalAccuracy to JSON format."""
+        self.validate()
+        data = asdict(self)
+        data["calculated_at"] = self.calculated_at.isoformat()
+        return json.dumps(data, indent=2)
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "HistoricalAccuracy":
+        """Deserialize HistoricalAccuracy from JSON format."""
+        try:
+            data = json.loads(json_str)
+            data["calculated_at"] = datetime.fromisoformat(data["calculated_at"])
+            accuracy = cls(**data)
+            accuracy.validate()
+            return accuracy
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            raise ValidationError(
+                f"Invalid JSON format for HistoricalAccuracy: {e}"
+            ) from e
+
+    def to_csv_row(self) -> Dict[str, Any]:
+        """Convert HistoricalAccuracy to CSV row format."""
+        self.validate()
+        return {
+            "stock_symbol": self.stock_symbol,
+            "time_period_days": self.time_period_days,
+            "total_predictions": self.total_predictions,
+            "correct_predictions": self.correct_predictions,
+            "accuracy_rate": self.accuracy_rate,
+            "average_confidence": self.average_confidence,
+            "calculated_at": self.calculated_at.isoformat(),
+        }
+
+    @classmethod
+    def from_csv_row(cls, row: Dict[str, Any]) -> "HistoricalAccuracy":
+        """Create HistoricalAccuracy from CSV row format."""
+        try:
+            row["calculated_at"] = datetime.fromisoformat(row["calculated_at"])
+            row["time_period_days"] = int(row["time_period_days"])
+            row["total_predictions"] = int(row["total_predictions"])
+            row["correct_predictions"] = int(row["correct_predictions"])
+            row["accuracy_rate"] = float(row["accuracy_rate"])
+            row["average_confidence"] = float(row["average_confidence"])
+            accuracy = cls(**row)
+            accuracy.validate()
+            return accuracy
+        except (KeyError, ValueError, TypeError) as e:
+            raise ValidationError(
+                f"Invalid CSV row format for HistoricalAccuracy: {e}"
+            ) from e
+
+
 def export_to_csv(
     data_objects: List[
-        Union[NewsArticle, SentimentAnalysis, ExtractedEntity, MarketPrediction]
+        Union[
+            NewsArticle,
+            SentimentAnalysis,
+            ExtractedEntity,
+            MarketPrediction,
+            MarketOutcome,
+            HistoricalAccuracy,
+        ]
     ],
     filename: str = None,
 ) -> str:
@@ -391,7 +591,14 @@ def export_to_csv(
 
 def export_to_json(
     data_objects: List[
-        Union[NewsArticle, SentimentAnalysis, ExtractedEntity, MarketPrediction]
+        Union[
+            NewsArticle,
+            SentimentAnalysis,
+            ExtractedEntity,
+            MarketPrediction,
+            MarketOutcome,
+            HistoricalAccuracy,
+        ]
     ],
     filename: str = None,
 ) -> str:
@@ -409,6 +616,12 @@ def export_to_json(
             data["published_at"] = obj.published_at.isoformat()
         if hasattr(obj, "created_at") and isinstance(obj.created_at, datetime):
             data["created_at"] = obj.created_at.isoformat()
+        if hasattr(obj, "evaluation_date") and isinstance(
+            obj.evaluation_date, datetime
+        ):
+            data["evaluation_date"] = obj.evaluation_date.isoformat()
+        if hasattr(obj, "calculated_at") and isinstance(obj.calculated_at, datetime):
+            data["calculated_at"] = obj.calculated_at.isoformat()
         json_data.append(data)
 
     json_content = json.dumps(json_data, indent=2)

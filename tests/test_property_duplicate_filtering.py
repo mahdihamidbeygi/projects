@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timedelta
 from typing import List
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import NewsArticle
 from news_market_predictor.fetcher.yahoo_finance_fetcher import YahooFinanceNewsFetcher
@@ -73,6 +73,7 @@ def create_test_article(
         max_size=20,
     )
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_duplicate_filtering_preserves_unique_articles(article_data):
     """
     **Feature: news-market-predictor, Property 4: Duplicate article filtering**

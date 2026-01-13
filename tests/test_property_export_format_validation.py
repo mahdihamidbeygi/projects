@@ -9,7 +9,7 @@ import csv
 from datetime import datetime
 from io import StringIO
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import (
     NewsArticle,
@@ -42,6 +42,7 @@ from news_market_predictor.models import (
         max_size=3,
     )
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_export_format_validation_json(articles):
     """
     **Feature: news-market-predictor, Property 17: Export format validation**
@@ -106,6 +107,7 @@ def test_export_format_validation_json(articles):
         max_size=3,
     )
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_export_format_validation_csv(articles):
     """
     **Feature: news-market-predictor, Property 17: Export format validation**

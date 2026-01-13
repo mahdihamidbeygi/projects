@@ -4,9 +4,16 @@ Base interfaces and abstract classes for the News Market Predictor system.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 
-from .models import NewsArticle, SentimentAnalysis, ExtractedEntity, MarketPrediction
+from .models import (
+    NewsArticle,
+    SentimentAnalysis,
+    ExtractedEntity,
+    MarketPrediction,
+    MarketOutcome,
+    HistoricalAccuracy,
+)
 
 
 class NewsFetcher(ABC):
@@ -161,4 +168,37 @@ class DataStorage(ABC):
         self, stock_symbol: Optional[str] = None
     ) -> List[MarketPrediction]:
         """Retrieve predictions for a specific stock or all stocks."""
+        pass
+
+
+class HistoricalDataInterface(ABC):
+    """Abstract base class for historical data management."""
+
+    @abstractmethod
+    def store_outcome(self, outcome: MarketOutcome) -> bool:
+        """Store a market outcome."""
+        pass
+
+    @abstractmethod
+    def store_accuracy_metrics(self, accuracy: HistoricalAccuracy) -> bool:
+        """Store historical accuracy metrics."""
+        pass
+
+    @abstractmethod
+    def calculate_historical_accuracy(
+        self, stock_symbol: str, time_period_days: int = 30
+    ) -> Optional[HistoricalAccuracy]:
+        """Calculate historical accuracy for a stock over a time period."""
+        pass
+
+    @abstractmethod
+    def get_similar_historical_predictions(
+        self, stock_symbol: str, sentiment_score: float, lookback_days: int = 90
+    ) -> List[Tuple[MarketPrediction, Optional[MarketOutcome]]]:
+        """Get similar historical predictions for influence calculation."""
+        pass
+
+    @abstractmethod
+    def cleanup_old_data(self, retention_days: int = 365) -> bool:
+        """Clean up old data based on retention policy."""
         pass

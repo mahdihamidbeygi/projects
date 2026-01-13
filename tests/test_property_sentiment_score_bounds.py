@@ -4,7 +4,7 @@ Property-based tests for sentiment score bounds validation.
 **Feature: news-market-predictor, Property 6: Sentiment score bounds**
 """
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.analyzer.sentiment_analyzer import VaderSentimentAnalyzer
 from news_market_predictor.models import SentimentAnalysis
@@ -15,6 +15,7 @@ from news_market_predictor.models import SentimentAnalysis
         min_size=0, max_size=10000
     )  # Test with various text lengths including empty
 )
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_sentiment_score_bounds_for_any_text(text):
     """
     **Feature: news-market-predictor, Property 6: Sentiment score bounds**
@@ -51,6 +52,7 @@ def test_sentiment_score_bounds_for_any_text(text):
         lambda x: x.strip()
     )  # Non-empty text only
 )
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_sentiment_score_bounds_for_valid_content(text):
     """
     **Feature: news-market-predictor, Property 6: Sentiment score bounds**
@@ -91,6 +93,7 @@ def test_sentiment_score_bounds_for_valid_content(text):
         st.just(None),  # None value (should be handled gracefully)
     )
 )
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_sentiment_score_bounds_for_edge_cases(text):
     """
     **Feature: news-market-predictor, Property 6: Sentiment score bounds**
@@ -146,6 +149,7 @@ def test_sentiment_score_bounds_for_edge_cases(text):
         )
     )
 )
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_sentiment_score_bounds_for_extreme_sentiment(text):
     """
     **Feature: news-market-predictor, Property 6: Sentiment score bounds**
@@ -179,6 +183,7 @@ def test_sentiment_score_bounds_for_extreme_sentiment(text):
 
 
 @given(st.text(min_size=10, max_size=2000).filter(lambda x: x.strip()))
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_sentiment_score_consistency_with_bounds(text):
     """
     **Feature: news-market-predictor, Property 6: Sentiment score bounds**

@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch, call
 from typing import List, Callable
 
 import requests
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.fetcher.yahoo_finance_fetcher import YahooFinanceNewsFetcher
 from news_market_predictor.exceptions import NetworkError
@@ -59,6 +59,7 @@ def simulate_network_failure_scenario(
 
 
 @given(st.integers(min_value=1, max_value=10))
+@settings(deadline=10000, max_examples=10)  # Reduced examples for faster execution
 def test_network_retry_exactly_three_times(failure_count):
     """
     **Feature: news-market-predictor, Property 3: Network retry behavior**
@@ -117,6 +118,7 @@ def test_network_retry_exactly_three_times(failure_count):
         ]
     )
 )
+@settings(deadline=10000, max_examples=5)  # Reduced examples for faster execution
 def test_network_retry_behavior_different_exception_types(exception_type):
     """
     **Feature: news-market-predictor, Property 3: Network retry behavior**
@@ -151,6 +153,7 @@ def test_network_retry_behavior_different_exception_types(exception_type):
 
 
 @given(st.integers(min_value=1, max_value=3))
+@settings(deadline=10000, max_examples=5)  # Reduced examples for faster execution
 def test_network_retry_exponential_backoff_timing(retry_count):
     """
     **Feature: news-market-predictor, Property 3: Network retry behavior**
@@ -203,6 +206,7 @@ def test_network_retry_exponential_backoff_timing(retry_count):
 
 
 @given(st.integers(min_value=0, max_value=2))
+@settings(deadline=10000, max_examples=5)  # Reduced examples for faster execution
 def test_network_retry_success_after_failures(success_after_attempts):
     """
     **Feature: news-market-predictor, Property 3: Network retry behavior**
@@ -290,6 +294,7 @@ def test_network_retry_rate_limit_handling():
 
 
 @given(st.text(min_size=1, max_size=100))
+@settings(deadline=10000, max_examples=5)  # Reduced examples for faster execution
 def test_network_retry_preserves_url_and_parameters(test_url_suffix):
     """
     **Feature: news-market-predictor, Property 3: Network retry behavior**

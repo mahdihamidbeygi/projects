@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\retention_manager.py
+# hypothesis_version: 6.148.7
+
+[365, 3600, '%Y%m%d_%H%M%S', 'accuracy_metrics', 'action', 'actions', 'backup', 'backup_file', 'cleanup_outcomes', 'cleanup_predictions', 'completed', 'current_stats', 'cutoff_date', 'end_time', 'error', 'failed', 'last_cleanup', 'metrics_age_range', 'newest', 'oldest', 'outcomes', 'outcomes_age_range', 'policy', 'predictions', 'reason', 'records_removed', 'records_targeted', 'should_run_cleanup', 'skipped', 'span_days', 'start_time', 'stats_after', 'stats_before', 'status', 'success', 'timestamp', 'total_outcomes', 'total_predictions']

@@ -81,74 +81,84 @@
   - **Property 18: Error resilience**
   - **Validates: Requirements 5.1**
 
-- [ ] 5. Build entity extraction system
+- [x] 5. Build entity extraction system
   - Implement stock symbol recognition using regex and financial databases
   - Create company name identification using named entity recognition
   - Add financial metrics extraction (earnings, revenue, guidance)
   - Implement market sector classification
   - _Requirements: 2.2, 2.3, 2.4_
 
-- [ ]* 5.1 Write property test for entity extraction
+- [x] 5.1 Write property test for entity extraction
+
   - **Property 7: Entity extraction completeness**
   - **Validates: Requirements 2.2, 2.3**
 
-- [ ]* 5.2 Write property test for article categorization
+- [x] 5.2 Write property test for article categorization
+
   - **Property 8: Article categorization consistency**
   - **Validates: Requirements 2.4**
 
-- [ ] 6. Checkpoint - Ensure all tests pass
+- [x] 6. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Develop market prediction engine
+- [x] 7. Develop market prediction engine
   - Implement basic prediction algorithms using sentiment and entity data
   - Create confidence calculation based on historical accuracy
   - Add support for multiple stock predictions per article
   - Implement low-confidence flagging mechanism
   - _Requirements: 3.1, 3.2, 3.3, 3.5_
 
-- [ ]* 7.1 Write property test for prediction format validation
+- [x] 7.1 Write property test for prediction format validation
+
   - **Property 9: Prediction format validation**
   - **Validates: Requirements 3.1**
 
-- [ ]* 7.2 Write property test for confidence level calculation
+- [x] 7.2 Write property test for confidence level calculation
+
   - **Property 10: Confidence level calculation**
   - **Validates: Requirements 3.2**
 
-- [ ]* 7.3 Write property test for multi-stock predictions
+- [x] 7.3 Write property test for multi-stock predictions
+
   - **Property 11: Multi-stock prediction completeness**
   - **Validates: Requirements 3.3**
 
-- [ ]* 7.4 Write property test for low confidence flagging
+- [x] 7.4 Write property test for low confidence flagging
+
   - **Property 13: Low confidence flagging**
   - **Validates: Requirements 3.5**
 
-- [ ] 8. Add historical data integration
+- [x] 8. Add historical data integration
   - Create database schema for storing historical predictions and outcomes
   - Implement historical accuracy calculation methods
   - Add historical data influence on current predictions
   - Create data retention and cleanup policies
   - _Requirements: 3.4, 4.3_
 
-- [ ]* 8.1 Write property test for historical data incorporation
+- [x] 8.1 Write property test for historical data incorporation
+
   - **Property 12: Historical data incorporation**
   - **Validates: Requirements 3.4**
 
-- [ ]* 8.2 Write property test for accuracy calculation
+- [x] 8.2 Write property test for accuracy calculation
+
   - **Property 15: Accuracy calculation correctness**
   - **Validates: Requirements 4.3**
 
-- [ ] 9. Build results aggregation and display system
+- [x] 9. Build results aggregation and display system
   - Implement prediction aggregation for multiple articles per stock
   - Create weighted confidence scoring for aggregated predictions
   - Add display formatting with all required fields
   - Implement export functionality for JSON and CSV formats
   - _Requirements: 4.1, 4.2, 4.4, 4.5_
 
-- [ ]* 9.1 Write property test for display output completeness
+- [x] 9.1 Write property test for display output completeness
+
   - **Property 14: Display output completeness**
   - **Validates: Requirements 4.1, 4.2**
 
-- [ ]* 9.2 Write property test for prediction aggregation
+- [x] 9.2 Write property test for prediction aggregation
+
   - **Property 16: Prediction aggregation consistency**
   - **Validates: Requirements 4.4**
 

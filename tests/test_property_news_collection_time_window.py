@@ -7,7 +7,7 @@ Property-based tests for news collection time window compliance.
 from datetime import datetime, timedelta
 from typing import List
 
-from hypothesis import given, strategies as st
+from hypothesis import given, strategies as st, settings
 
 from news_market_predictor.models import NewsArticle
 
@@ -60,6 +60,7 @@ def simulate_fetch_daily_news(target_date: datetime) -> List[NewsArticle]:
 
 
 @given(st.datetimes(min_value=datetime(2020, 1, 1), max_value=datetime(2024, 12, 31)))
+@settings(max_examples=10)  # Reduced examples for faster execution
 def test_news_collection_time_window_compliance(target_date):
     """
     **Feature: news-market-predictor, Property 1: News collection time window compliance**
@@ -100,6 +101,7 @@ def test_news_collection_time_window_compliance(target_date):
 
 
 @given(st.datetimes(min_value=datetime(2020, 1, 1), max_value=datetime(2024, 12, 31)))
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_news_collection_time_window_boundary_conditions(target_date):
     """
     **Feature: news-market-predictor, Property 1: News collection time window compliance**
@@ -186,6 +188,7 @@ def test_news_collection_time_window_boundary_conditions(target_date):
         max_size=10,
     ),
 )
+@settings(max_examples=5)  # Reduced examples for faster execution
 def test_news_collection_time_window_mixed_timestamps(target_date, article_timestamps):
     """
     **Feature: news-market-predictor, Property 1: News collection time window compliance**

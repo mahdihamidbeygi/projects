@@ -70,15 +70,8 @@ class YahooFinanceNewsFetcher(NewsFetcher):
         """Create requests session with retry strategy and headers."""
         session = requests.Session()
 
-        # Configure retry strategy with exponential backoff
-        retry_strategy = Retry(
-            total=self.max_retries,
-            backoff_factor=1,  # Exponential backoff: 1, 2, 4 seconds
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"],
-        )
-
-        adapter = HTTPAdapter(max_retries=retry_strategy)
+        # Disable automatic retries - we handle retries manually
+        adapter = HTTPAdapter(max_retries=0)
         session.mount("http://", adapter)
         session.mount("https://", adapter)
 
@@ -124,29 +117,50 @@ class YahooFinanceNewsFetcher(NewsFetcher):
         """
         self._respect_rate_limit()
 
-        try:
-            logger.debug(f"Fetching URL: {url}")
-            response = self.session.get(url, timeout=self.timeout)
+        last_exception = None
 
-            # Check for rate limiting
-            if response.status_code == 429:
-                retry_after = response.headers.get("Retry-After")
-                if retry_after:
-                    wait_time = int(retry_after)
-                    logger.warning(f"Rate limited. Waiting {wait_time} seconds")
-                    time.sleep(wait_time)
-                    raise RateLimitError(
-                        f"Rate limited by server. Retry after {wait_time} seconds"
-                    )
-                else:
+        # Implement manual retry logic with exponential backoff
+        for attempt in range(self.max_retries + 1):  # +1 for initial attempt
+            try:
+                logger.debug(f"Fetching URL: {url} (attempt {attempt + 1})")
+
+                # Use the original session but make a direct request without urllib3 retries
+                response = self.session.get(url, timeout=self.timeout)
+
+                # Check for rate limiting
+                if response.status_code == 429:
+                    retry_after = response.headers.get("Retry-After")
+                    if retry_after:
+                        wait_time = int(retry_after)
+                        logger.warning(f"Rate limited. Waiting {wait_time} seconds")
+                        time.sleep(wait_time)
+                        raise RateLimitError(
+                            f"Rate limited by server. Retry after {wait_time} seconds"
+                        )
                     raise RateLimitError("Rate limited by server")
 
-            response.raise_for_status()
-            return response
+                response.raise_for_status()
+                return response
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Request failed for {url}: {e}")
-            raise NetworkError(f"Failed to fetch {url}: {e}") from e
+            except requests.exceptions.RequestException as e:
+                last_exception = e
+                logger.error(f"Request failed for {url}: {e}")
+
+                # Don't retry on the last attempt
+                if attempt < self.max_retries:
+                    # Exponential backoff: 1s, 2s, 4s
+                    backoff_time = 2**attempt
+                    logger.debug(f"Retrying in {backoff_time} seconds...")
+                    time.sleep(backoff_time)
+                    continue
+                else:
+                    # All retries exhausted
+                    break
+
+        # If we get here, all retries failed
+        raise NetworkError(
+            f"Failed to fetch {url}: {last_exception}"
+        ) from last_exception
 
     def fetch_daily_news(self, date: Optional[datetime] = None) -> List[NewsArticle]:
         """
