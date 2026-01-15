@@ -5,7 +5,7 @@ Yahoo Finance news fetcher implementation.
 import time
 import hashlib
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any, Set
 from urllib.parse import urljoin, urlparse
 import re
@@ -36,10 +36,10 @@ class YahooFinanceNewsFetcher(NewsFetcher):
 
     # Yahoo Finance RSS feeds
     RSS_FEEDS = {
-        "general": "https://feeds.finance.yahoo.com/rss/2.0/headline",
-        "markets": "https://feeds.finance.yahoo.com/rss/2.0/category-markets",
-        "earnings": "https://feeds.finance.yahoo.com/rss/2.0/category-earnings",
-        "tech": "https://feeds.finance.yahoo.com/rss/2.0/category-tech",
+        "general": "https://finance.yahoo.com/news/rssindex",
+        "markets": "https://finance.yahoo.com/topic/stock-market-news/",
+        "earnings": "https://finance.yahoo.com/topic/earnings/",
+        "tech": "https://finance.yahoo.com/topic/technology/",
     }
 
     def __init__(
@@ -480,13 +480,26 @@ class YahooFinanceNewsFetcher(NewsFetcher):
         Returns:
             Filtered list of articles
         """
+        # Ensure target_date is timezone-aware for comparison
+        if target_date.tzinfo is None:
+            target_date = target_date.replace(tzinfo=timezone.utc)
+
         start_date = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = start_date + timedelta(days=1)
 
         filtered = []
         for article in articles:
-            if start_date <= article.published_at < end_date:
+            # Ensure article.published_at is timezone-aware for comparison
+            article_date = article.published_at
+            if article_date.tzinfo is None:
+                article_date = article_date.replace(tzinfo=timezone.utc)
+
+            if start_date <= article_date < end_date:
                 filtered.append(article)
+
+        logger.debug(
+            f"Filtered {len(articles)} articles to {len(filtered)} within date range"
+        )
 
         return filtered
 
