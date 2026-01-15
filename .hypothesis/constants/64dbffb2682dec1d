@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\schema_manager.py
+# hypothesis_version: 6.148.7
+
+[';', 'add_indexes', 'applied_at', 'applied_migrations', 'current_version', 'description', 'initial_schema', 'latest_version', 'name', 'pending_migrations', 'up_to_date', 'version']

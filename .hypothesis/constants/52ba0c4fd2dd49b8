@@ -1,0 +1,4 @@
+# file: C:\Users\MHamidbeygi\projects\news_market_predictor\pipeline_manager.py
+# hypothesis_version: 6.148.7
+
+[0.0, 0.8, 1.0, 2.0, 30.0, 60.0, 80.0, 1024, '%Y-%m-%d', 'article_success_rate', 'articles_count', 'articles_failed', 'articles_processed', 'confidence_level', 'degraded', 'error', 'healthy', 'impact_direction', 'neutral', 'predictions', 'predictions_count', 'predictions_failed', 'rate_limit_hits', 'reasoning', 'statistics', 'status', 'stock_symbol', 'storage_failures', 'success', 'timestamp']

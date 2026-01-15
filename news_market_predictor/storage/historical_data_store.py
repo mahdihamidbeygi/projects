@@ -4,6 +4,7 @@ Historical data storage and management for the News Market Predictor system.
 
 import sqlite3
 import json
+import logging
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any, Tuple
 from pathlib import Path
@@ -15,15 +16,31 @@ from ..models import (
     ValidationError,
 )
 from ..interfaces import DataStorage
+from ..error_handling import StorageFailureRecovery, with_error_recovery
+from ..exceptions import StorageError
+
+logger = logging.getLogger(__name__)
 
 
 class HistoricalDataStore(DataStorage):
     """SQLite-based storage for historical predictions and outcomes."""
 
-    def __init__(self, db_path: str = "historical_data.db"):
+    def __init__(self, db_path: str = "historical_data.db", backup_db_path: str = None):
         """Initialize the historical data store with database connection."""
         self.db_path = db_path
+        self.backup_db_path = backup_db_path
         self._init_database()
+
+        # Setup backup storage if provided
+        self.backup_store = None
+        if backup_db_path:
+            try:
+                self.backup_store = HistoricalDataStore(backup_db_path)
+            except Exception as e:
+                logger.warning("Failed to initialize backup storage: %s", e)
+
+        # Setup storage failure recovery
+        self.storage_recovery = StorageFailureRecovery(self, self.backup_store)
 
     def _init_database(self) -> None:
         """Initialize database schema for historical data."""
@@ -99,7 +116,13 @@ class HistoricalDataStore(DataStorage):
         raise NotImplementedError("Historical data store does not handle articles")
 
     def store_prediction(self, prediction: MarketPrediction) -> bool:
-        """Store a market prediction in the database."""
+        """Store a market prediction in the database with backup recovery."""
+        return self.storage_recovery.store_with_recovery(
+            "_store_prediction_direct", prediction
+        )
+
+    def _store_prediction_direct(self, prediction: MarketPrediction) -> bool:
+        """Direct storage method for predictions."""
         try:
             prediction.validate()
 
@@ -126,11 +149,17 @@ class HistoricalDataStore(DataStorage):
                 return True
 
         except (sqlite3.Error, ValidationError) as e:
-            print(f"Error storing prediction: {e}")
-            return False
+            logger.error("Error storing prediction: %s", e)
+            raise StorageError(f"Failed to store prediction: {e}") from e
 
     def store_outcome(self, outcome: MarketOutcome) -> bool:
-        """Store a market outcome in the database."""
+        """Store a market outcome in the database with backup recovery."""
+        return self.storage_recovery.store_with_recovery(
+            "_store_outcome_direct", outcome
+        )
+
+    def _store_outcome_direct(self, outcome: MarketOutcome) -> bool:
+        """Direct storage method for outcomes."""
         try:
             outcome.validate()
 
@@ -157,11 +186,17 @@ class HistoricalDataStore(DataStorage):
                 return True
 
         except (sqlite3.Error, ValidationError) as e:
-            print(f"Error storing outcome: {e}")
-            return False
+            logger.error("Error storing outcome: %s", e)
+            raise StorageError(f"Failed to store outcome: {e}") from e
 
     def store_accuracy_metrics(self, accuracy: HistoricalAccuracy) -> bool:
-        """Store historical accuracy metrics in the database."""
+        """Store historical accuracy metrics in the database with backup recovery."""
+        return self.storage_recovery.store_with_recovery(
+            "_store_accuracy_metrics_direct", accuracy
+        )
+
+    def _store_accuracy_metrics_direct(self, accuracy: HistoricalAccuracy) -> bool:
+        """Direct storage method for accuracy metrics."""
         try:
             accuracy.validate()
 
@@ -188,8 +223,8 @@ class HistoricalDataStore(DataStorage):
                 return True
 
         except (sqlite3.Error, ValidationError) as e:
-            print(f"Error storing accuracy metrics: {e}")
-            return False
+            logger.error("Error storing accuracy metrics: %s", e)
+            raise StorageError(f"Failed to store accuracy metrics: {e}") from e
 
     def retrieve_articles(self, date_range: Optional[tuple] = None) -> List:
         """Retrieve articles (not implemented in historical store)."""

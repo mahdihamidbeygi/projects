@@ -19,6 +19,13 @@ from urllib3.util.retry import Retry
 from ..interfaces import NewsFetcher
 from ..models import NewsArticle
 from ..exceptions import NetworkError, ParsingError, RateLimitError
+from ..error_handling import (
+    RateLimitHandler,
+    RateLimitConfig,
+    RetryConfig,
+    with_retry,
+    ErrorHandlingManager,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -66,6 +73,26 @@ class YahooFinanceNewsFetcher(NewsFetcher):
         # Configure session with retry strategy
         self.session = self._create_session()
 
+        # Setup comprehensive error handling
+        rate_limit_config = RateLimitConfig(
+            requests_per_second=1.0 / rate_limit_delay,
+            burst_size=3,
+            cooldown_period=60.0,
+        )
+        retry_config = RetryConfig(
+            max_attempts=max_retries
+            + 1,  # +1 for initial attempt to match expected behavior
+            base_delay=1.0,
+            max_delay=30.0,
+            exponential_base=2.0,
+            jitter=False,  # Disable jitter for predictable timing in tests
+        )
+
+        self.error_manager = ErrorHandlingManager(
+            retry_config=retry_config, rate_limit_config=rate_limit_config
+        )
+        self.rate_limit_handler = self.error_manager.rate_limit_handler
+
     def _create_session(self) -> requests.Session:
         """Create requests session with retry strategy and headers."""
         session = requests.Session()
@@ -91,15 +118,7 @@ class YahooFinanceNewsFetcher(NewsFetcher):
 
     def _respect_rate_limit(self):
         """Implement rate limiting between requests."""
-        current_time = time.time()
-        time_since_last_request = current_time - self._last_request_time
-
-        if time_since_last_request < self.rate_limit_delay:
-            sleep_time = self.rate_limit_delay - time_since_last_request
-            logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f} seconds")
-            time.sleep(sleep_time)
-
-        self._last_request_time = time.time()
+        self.rate_limit_handler.wait_if_needed()
 
     def _make_request(self, url: str) -> requests.Response:
         """
@@ -115,52 +134,48 @@ class YahooFinanceNewsFetcher(NewsFetcher):
             NetworkError: If request fails after retries
             RateLimitError: If rate limited by server
         """
-        self._respect_rate_limit()
+        # Use the error manager's retry decorator
+        retry_decorator = self.error_manager.get_retry_decorator(
+            exceptions=(
+                NetworkError,
+                RateLimitError,
+                requests.exceptions.RequestException,
+            )
+        )
 
-        last_exception = None
-
-        # Implement manual retry logic with exponential backoff
-        for attempt in range(self.max_retries + 1):  # +1 for initial attempt
+        @retry_decorator
+        def make_request_with_retry():
             try:
-                logger.debug(f"Fetching URL: {url} (attempt {attempt + 1})")
+                logger.debug("Fetching URL: %s", url)
 
-                # Use the original session but make a direct request without urllib3 retries
                 response = self.session.get(url, timeout=self.timeout)
 
                 # Check for rate limiting
                 if response.status_code == 429:
-                    retry_after = response.headers.get("Retry-After")
-                    if retry_after:
-                        wait_time = int(retry_after)
-                        logger.warning(f"Rate limited. Waiting {wait_time} seconds")
-                        time.sleep(wait_time)
-                        raise RateLimitError(
-                            f"Rate limited by server. Retry after {wait_time} seconds"
-                        )
-                    raise RateLimitError("Rate limited by server")
+                    retry_after_header = response.headers.get("Retry-After")
+                    retry_after = None
+                    if retry_after_header:
+                        try:
+                            retry_after = int(retry_after_header)
+                        except (ValueError, TypeError):
+                            logger.warning(
+                                "Invalid Retry-After header: %s", retry_after_header
+                            )
+                            retry_after = None
+
+                    # Create RateLimitError with retry_after attribute for the retry decorator
+                    error = RateLimitError("Rate limited by server")
+                    error.retry_after = retry_after
+                    raise error
 
                 response.raise_for_status()
                 return response
 
             except requests.exceptions.RequestException as e:
-                last_exception = e
-                logger.error(f"Request failed for {url}: {e}")
+                logger.error("Request failed for %s: %s", url, e)
+                raise NetworkError(f"Failed to fetch {url}: {e}") from e
 
-                # Don't retry on the last attempt
-                if attempt < self.max_retries:
-                    # Exponential backoff: 1s, 2s, 4s
-                    backoff_time = 2**attempt
-                    logger.debug(f"Retrying in {backoff_time} seconds...")
-                    time.sleep(backoff_time)
-                    continue
-                else:
-                    # All retries exhausted
-                    break
-
-        # If we get here, all retries failed
-        raise NetworkError(
-            f"Failed to fetch {url}: {last_exception}"
-        ) from last_exception
+        return make_request_with_retry()
 
     def fetch_daily_news(self, date: Optional[datetime] = None) -> List[NewsArticle]:
         """

@@ -15,6 +15,12 @@ from news_market_predictor.models import (
     ExtractedEntity,
     MarketPrediction,
 )
+from news_market_predictor.error_handling import (
+    InvalidInputHandler,
+    with_error_recovery,
+    ErrorHandlingManager,
+)
+from news_market_predictor.exceptions import PredictionError
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +59,10 @@ class BasicMarketPredictor(MarketPredictor):
 
         # Weights for different signal types
         self.signal_weights = {"sentiment": 0.4, "entity": 0.3, "financial_metric": 0.3}
+
+        # Setup error handling
+        self.error_manager = ErrorHandlingManager()
+        self.input_handler = InvalidInputHandler()
 
         # Keywords that indicate strong market impact
         self.impact_keywords = {
@@ -96,6 +106,33 @@ class BasicMarketPredictor(MarketPredictor):
         Generate market impact predictions for all stocks mentioned in the article.
         """
         try:
+            # Validate inputs first
+            if not self.input_handler.validate_article(article):
+                logger.warning(
+                    "Invalid article input for prediction: %s",
+                    article.id if article else "None",
+                )
+                return []
+
+            if not self.input_handler.validate_sentiment(sentiment):
+                logger.warning("Invalid sentiment input for article: %s", article.id)
+                # Create neutral prediction for invalid sentiment
+                stock_entities = [
+                    e for e in entities if e.entity_type == "stock_symbol"
+                ]
+                return [
+                    self.input_handler.create_neutral_prediction(
+                        article.id,
+                        entity.entity_value,
+                        "Invalid sentiment analysis data",
+                    )
+                    for entity in stock_entities
+                ]
+
+            if not self.input_handler.validate_entities(entities):
+                logger.warning("Invalid entities input for article: %s", article.id)
+                return []
+
             # Extract stock symbols from entities
             stock_entities = [e for e in entities if e.entity_type == "stock_symbol"]
 
@@ -140,21 +177,21 @@ class BasicMarketPredictor(MarketPredictor):
                         e,
                     )
                     # Create neutral prediction as fallback
-                    neutral_prediction = MarketPrediction(
-                        article_id=article.id,
-                        stock_symbol=stock_entity.entity_value,
-                        impact_direction="neutral",
-                        impact_magnitude=0.0,
-                        confidence_level=0.0,
-                        reasoning=f"Error in prediction generation: {str(e)}",
-                        created_at=datetime.now(),
+                    neutral_prediction = self.input_handler.create_neutral_prediction(
+                        article.id,
+                        stock_entity.entity_value,
+                        f"Error in prediction generation: {str(e)}",
                     )
                     predictions.append(neutral_prediction)
 
             return predictions
 
         except Exception as e:
-            logger.error("Error in predict_impact for article %s: %s", article.id, e)
+            logger.error(
+                "Error in predict_impact for article %s: %s",
+                article.id if article else "None",
+                e,
+            )
             return []
 
     def _generate_single_prediction(

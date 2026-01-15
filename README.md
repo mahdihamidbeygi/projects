@@ -45,14 +45,90 @@ pip install -e .
 
 ## Usage
 
-Run the main application:
+### Command-Line Interface
+
+The News Market Predictor provides a comprehensive CLI for running daily analysis:
+
+#### Basic Usage
+
+Run daily analysis for today:
 ```bash
 python -m news_market_predictor.main
 ```
 
-Or use the console script:
+Run analysis for a specific date:
 ```bash
-news-predictor
+python -m news_market_predictor.main --date 2024-01-15
+```
+
+Run analysis for yesterday:
+```bash
+python -m news_market_predictor.main --days-back 1
+```
+
+#### Output Options
+
+Export results to JSON:
+```bash
+python -m news_market_predictor.main --output results.json --format json
+```
+
+Export results to CSV:
+```bash
+python -m news_market_predictor.main --output results.csv --format csv
+```
+
+Display results in text format (default):
+```bash
+python -m news_market_predictor.main --format text
+```
+
+#### Configuration Options
+
+Run with custom configuration:
+```bash
+python -m news_market_predictor.main --log-level DEBUG --batch-size 20 --max-retries 5
+```
+
+Set confidence threshold:
+```bash
+python -m news_market_predictor.main --confidence-threshold 0.5
+```
+
+Enable verbose output:
+```bash
+python -m news_market_predictor.main --verbose
+```
+
+#### Monitoring Options
+
+Check system health status:
+```bash
+python -m news_market_predictor.main --health-check
+```
+
+Display detailed statistics:
+```bash
+python -m news_market_predictor.main --stats
+```
+
+#### Help and Version
+
+Show help message:
+```bash
+python -m news_market_predictor.main --help
+```
+
+Show version:
+```bash
+python -m news_market_predictor.main --version
+```
+
+### Console Script
+
+After installation, you can also use the console script:
+```bash
+news-predictor --help
 ```
 
 ## Configuration
