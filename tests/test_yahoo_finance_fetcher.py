@@ -42,15 +42,12 @@ class TestFetchDailyNews:
 
     def test_fetch_daily_news_defaults_to_today(self, fetcher):
         """Test that fetch_daily_news defaults to today's date when no date is provided."""
-        articles = fetcher.fetch_daily_news()
-        print(articles)
-        # with patch.object(fetcher, "_fetch_rss_feed", return_value=[]):
-        #     articles = fetcher.fetch_daily_news()
-        #     print(articles)
-        #     # Should have been called for each RSS feed
-        #     assert fetcher._fetch_rss_feed.call_count == len(
-        #         YahooFinanceNewsFetcher.RSS_FEEDS
-        #     )
+        with patch.object(fetcher, "_fetch_rss_feed", return_value=[]):
+            articles = fetcher.fetch_daily_news()
+            # Should have been called for each RSS feed
+            assert fetcher._fetch_rss_feed.call_count == len(
+                YahooFinanceNewsFetcher.RSS_FEEDS
+            )
 
     def test_fetch_daily_news_with_specific_date(self, fetcher):
         """Test fetch_daily_news with a specific date."""
