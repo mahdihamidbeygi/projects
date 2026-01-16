@@ -194,3 +194,57 @@ class NewsContentProcessor(ContentProcessor):
                 f"Content validation failed for article {getattr(article, 'id', 'unknown')}: {e}"
             )
             return False
+
+    def process_content(self, article: NewsArticle) -> NewsArticle:
+        """
+        Process article content by cleaning text and extracting metadata.
+
+        Args:
+            article: NewsArticle to process
+
+        Returns:
+            Processed NewsArticle with cleaned content and metadata
+
+        Raises:
+            ContentProcessingError: If processing fails
+        """
+        try:
+            if not isinstance(article, NewsArticle):
+                raise ContentProcessingError(
+                    f"Expected NewsArticle, got {type(article)}"
+                )
+
+            # Validate content first
+            if not self.validate_content(article):
+                logger.warning("Article %s failed content validation", article.id)
+                # Return article as-is if validation fails
+                return article
+
+            # Clean the content
+            cleaned_content = self.clean_text(article.content)
+
+            # Extract metadata
+            metadata = self.extract_metadata(article)
+
+            # Create a new article with cleaned content and updated metadata
+            processed_article = NewsArticle(
+                id=article.id,
+                title=article.title,
+                content=cleaned_content,
+                url=article.url,
+                published_at=article.published_at,
+                source=article.source,
+                category=article.category,
+                raw_metadata={**article.raw_metadata, "processing_metadata": metadata},
+            )
+
+            logger.debug("Successfully processed article %s", article.id)
+            return processed_article
+
+        except Exception as e:
+            logger.error(
+                "Failed to process content for article %s: %s",
+                getattr(article, "id", "unknown"),
+                e,
+            )
+            raise ContentProcessingError(f"Content processing failed: {e}") from e

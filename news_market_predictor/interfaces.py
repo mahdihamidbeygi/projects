@@ -55,6 +55,11 @@ class ContentProcessor(ABC):
         """Validate that article content is processable."""
         pass
 
+    @abstractmethod
+    def process_content(self, article: NewsArticle) -> NewsArticle:
+        """Process article content (clean, validate, extract metadata)."""
+        pass
+
 
 class SentimentAnalyzer(ABC):
     """Abstract base class for sentiment analysis components."""
@@ -91,6 +96,11 @@ class EntityExtractor(ABC):
     @abstractmethod
     def find_financial_metrics(self, text: str) -> List[ExtractedEntity]:
         """Find financial metrics (earnings, revenue, etc.) in text."""
+        pass
+
+    @abstractmethod
+    def extract_entities(self, article: NewsArticle) -> List[ExtractedEntity]:
+        """Extract all entities from an article."""
         pass
 
 

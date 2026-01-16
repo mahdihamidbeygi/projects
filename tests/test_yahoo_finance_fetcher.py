@@ -209,15 +209,23 @@ class TestFetchDailyNews:
             mock_response.text = sample_rss_content
             return mock_response
 
-        with patch.object(
-            fetcher, "_make_request", side_effect=mock_request_side_effect
-        ):
-            articles = fetcher.fetch_daily_news(
-                date=datetime(2026, 1, 13, tzinfo=timezone.utc)
-            )
+        # Mock RSS_FEEDS to have multiple feeds
+        mock_feeds = {
+            "feed1": "https://example.com/feed1",
+            "feed2": "https://example.com/feed2",
+            "feed3": "https://example.com/feed3",
+        }
 
-            # Should still return articles from successful feeds
-            assert len(articles) > 0
+        with patch.object(fetcher, "RSS_FEEDS", mock_feeds):
+            with patch.object(
+                fetcher, "_make_request", side_effect=mock_request_side_effect
+            ):
+                articles = fetcher.fetch_daily_news(
+                    date=datetime(2026, 1, 13, tzinfo=timezone.utc)
+                )
+
+                # Should still return articles from successful feeds
+                assert len(articles) > 0
 
     def test_fetch_daily_news_handles_empty_feeds(self, fetcher):
         """Test that fetch_daily_news handles empty RSS feeds gracefully."""
@@ -322,3 +330,30 @@ class TestFetchDailyNews:
             article_ids = [article.id for article in articles]
             # After deduplication, all IDs should be unique
             assert len(article_ids) == len(set(article_ids))
+
+    def test_fetch_daily_news_parses_real_yahoo_rss_format(
+        self, fetcher, sample_rss_content
+    ):
+        """Test parsing of real Yahoo Finance RSS feed format with namespaces."""
+        with patch.object(fetcher, "_make_request") as mock_request:
+            mock_response = Mock()
+            mock_response.text = sample_rss_content
+            mock_request.return_value = mock_response
+
+            # Use date matching the RSS feed (Jan 15, 2026)
+            result = fetcher.fetch_daily_news(
+                date=datetime(2026, 1, 13, tzinfo=timezone.utc)
+            )
+
+            # Should successfully parse the real RSS format
+            assert len(result) > 0
+
+            # Check that articles have expected fields from real RSS
+            for article in result:
+                assert article.title is not None and len(article.title) > 0
+                assert article.url is not None and article.url.startswith("http")
+                assert article.published_at is not None
+                assert article.source == "Yahoo Finance"
+
+            # Verify specific article titles from the sample RSS
+            article_titles = [article.title for article in result]

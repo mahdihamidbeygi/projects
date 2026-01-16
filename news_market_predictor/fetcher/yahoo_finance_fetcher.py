@@ -18,7 +18,7 @@ from urllib3.util.retry import Retry
 
 from ..interfaces import NewsFetcher
 from ..models import NewsArticle
-from ..exceptions import NetworkError, ParsingError, RateLimitError
+from ..exceptions import NetworkError, ParsingError, RateLimitError, AccessDeniedError
 from ..error_handling import (
     RateLimitHandler,
     RateLimitConfig,
@@ -37,9 +37,9 @@ class YahooFinanceNewsFetcher(NewsFetcher):
     # Yahoo Finance RSS feeds
     RSS_FEEDS = {
         "general": "https://finance.yahoo.com/news/rssindex",
-        "markets": "https://finance.yahoo.com/topic/stock-market-news/",
-        "earnings": "https://finance.yahoo.com/topic/earnings/",
-        "tech": "https://finance.yahoo.com/topic/technology/",
+        # "markets": "https://finance.yahoo.com/topic/stock-market-news/",
+        # "earnings": "https://finance.yahoo.com/topic/earnings/",
+        # "tech": "https://finance.yahoo.com/topic/technology/",
     }
 
     def __init__(
@@ -171,6 +171,19 @@ class YahooFinanceNewsFetcher(NewsFetcher):
                 response.raise_for_status()
                 return response
 
+            except requests.exceptions.HTTPError as e:
+                # Don't retry 401/403 errors - they indicate permission issues
+                if e.response is not None and e.response.status_code in (401, 403):
+                    logger.debug(
+                        "Access denied for %s (HTTP %s)",
+                        url,
+                        e.response.status_code,
+                    )
+                    raise AccessDeniedError(
+                        f"Access denied for {url}: HTTP {e.response.status_code}"
+                    ) from e
+                logger.error("Request failed for %s: %s", url, e)
+                raise NetworkError(f"Failed to fetch {url}: {e}") from e
             except requests.exceptions.RequestException as e:
                 logger.error("Request failed for %s: %s", url, e)
                 raise NetworkError(f"Failed to fetch {url}: {e}") from e
@@ -426,6 +439,13 @@ class YahooFinanceNewsFetcher(NewsFetcher):
             logger.warning(f"Could not extract content from {url}")
             return None
 
+        except AccessDeniedError:
+            # Access denied is expected for some external sites - just use RSS description
+            logger.debug(f"Access denied for {url} - using RSS description only")
+            return None
+        except NetworkError as e:
+            logger.warning(f"Failed to scrape content from {url}: {e}")
+            return None
         except Exception as e:
             logger.warning(f"Failed to scrape content from {url}: {e}")
             return None

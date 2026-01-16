@@ -27,6 +27,12 @@ class RateLimitError(NewsFetchError):
     pass
 
 
+class AccessDeniedError(NewsFetchError):
+    """Raised when access to a resource is denied (401/403 errors)."""
+
+    pass
+
+
 class ParsingError(NewsFetchError):
     """Raised when content parsing operations fail."""
 

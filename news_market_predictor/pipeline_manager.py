@@ -228,7 +228,7 @@ class PipelineManager:
     def _analyze_sentiment_with_recovery(self, article: NewsArticle):
         """Analyze sentiment with error recovery."""
         try:
-            return self.sentiment_analyzer.analyze_sentiment(article)
+            return self.sentiment_analyzer.analyze_sentiment(article.content)
         except Exception as e:
             logger.warning(
                 "Sentiment analysis failed for article %s: %s", article.id, e

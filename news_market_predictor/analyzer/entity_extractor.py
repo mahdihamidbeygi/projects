@@ -8,7 +8,7 @@ from typing import List, Dict, Set, Tuple
 from dataclasses import dataclass
 
 from ..interfaces import EntityExtractor
-from ..models import ExtractedEntity
+from ..models import ExtractedEntity, NewsArticle
 
 
 logger = logging.getLogger(__name__)
@@ -395,6 +395,20 @@ class FinancialEntityExtractor(EntityExtractor):
         all_entities.extend(metric_entities)
 
         return all_entities
+
+    def extract_entities(self, article: "NewsArticle") -> List[ExtractedEntity]:
+        """
+        Extract all entities from an article.
+
+        Args:
+            article: NewsArticle to extract entities from
+
+        Returns:
+            List of ExtractedEntity objects
+        """
+        # Combine title and content for entity extraction
+        text = f"{article.title} {article.content}"
+        return self.extract_all_entities(article.id, text)
 
     def get_market_sector(self, stock_symbol: str) -> str:
         """Get market sector for a given stock symbol."""
