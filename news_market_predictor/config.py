@@ -16,7 +16,7 @@ class NetworkConfig:
     max_retries: int = 3
     retry_delay: float = 1.0
     timeout: int = 30
-    rate_limit_delay: float = 1.0
+    rate_limit_delay: float = 0.1
 
 
 @dataclass
