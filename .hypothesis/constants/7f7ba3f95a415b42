@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\historical_data_store.py
-# hypothesis_version: 6.148.7
-
-[0.0, 365, ' AND ', ' WHERE ', 'historical_data.db', 'prediction_id = ?', 'stock_symbol = ?', 'time_period_days = ?', 'total_outcomes', 'total_predictions', 'unique_stocks']

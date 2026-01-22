@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\urllib3\response.py
-# hypothesis_version: 6.148.7
-
-[b'\n', b'\r\n', b';', 100, 200, 204, 301, 302, 303, 304, 307, 308, ',', 'HEAD', 'Read timed out.', 'br', 'chunked', 'closed', 'content-encoding', 'content-length', 'decompress', 'deflate', 'fileno', 'flush', 'fp', 'gzip', 'isclosed', 'location', 'read', 'strict', 'transfer-encoding']

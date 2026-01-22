@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\config.py
-# hypothesis_version: 6.148.7
-
-[0.3, 1.0, 50000, 'BACKUP_ENABLED', 'BATCH_SIZE', 'Config', 'DATABASE_URL', 'DATA_RETENTION_DAYS', 'INFO', 'LOG_FILE', 'LOG_LEVEL', 'MAX_CONTENT_LENGTH', 'MAX_RETRIES', 'RATE_LIMIT_DELAY', 'RETRY_DELAY', 'TIMEOUT', 'news_predictor.log', 'true']

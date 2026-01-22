@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\aggregator\results_aggregator.py
-# hypothesis_version: 6.148.7
-
-[0.0, 0.3, 0.5, 1.0, '; ', 'accuracy_rate', 'actual_direction', 'actual_magnitude', 'average_confidence', 'directional_accuracy', 'historical_accuracy', 'id', 'median_confidence', 'negative', 'neutral', 'overall_accuracy', 'positive', 'prediction_id', 'stock_symbol', 'time_period_days', 'total_predictions']

@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\database_connection.py
-# hypothesis_version: 6.148.7
-
-[5432, '10', '30', '5', '5432', 'DB_HOST', 'DB_MAX_OVERFLOW', 'DB_NAME', 'DB_PASSWORD', 'DB_PATH', 'DB_POOL_SIZE', 'DB_POOL_TIMEOUT', 'DB_PORT', 'DB_TYPE', 'DB_USER', 'DatabaseConfig', 'SELECT 1', 'connected', 'database', 'host', 'localhost', 'path', 'pool_size', 'port', 'postgresql', 'size_bytes', 'sqlite', 'type']

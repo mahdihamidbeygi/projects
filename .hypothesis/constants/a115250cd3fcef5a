@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\predictor\historical_analyzer.py
-# hypothesis_version: 6.148.7
-
-[0.0, 0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 1.1, '30_days', '7_days', 'accuracy_rate', 'adjustment_factor', 'analysis_date', 'average_confidence', 'data_points', 'declining', 'historical_accuracy', 'improving', 'insufficient_data', 'negative', 'neutral', 'period_data', 'positive', 'reason', 'stable', 'stock_symbol', 'total_predictions', 'trend_direction']

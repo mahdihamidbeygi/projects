@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\analyzer\content_processor.py
-# hypothesis_version: 6.148.7
-
-['<[^>]+>', '[.!?]+', '\\s+', 'content_length', 'has_emails', 'has_urls', 'paragraph_count', 'sentence_count', 'title_length', 'word_count']

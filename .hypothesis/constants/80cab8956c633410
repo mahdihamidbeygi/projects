@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\__init__.py
-# hypothesis_version: 6.148.7
-
-['BackupConfig', 'BackupManager', 'DataAccessLayer', 'DatabaseConfig', 'DatabaseConnection', 'HistoricalDataStore', 'Migration', 'RetentionManager', 'RetentionPolicy', 'SchemaManager']

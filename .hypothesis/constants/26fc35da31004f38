@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\storage\backup_manager.py
-# hypothesis_version: 6.148.7
-
-[1024, 3600, '%Y%m%d_%H%M%S', '.db', '.gz', 'backup_*.db*', 'backup_dir', 'backup_file', 'backup_size_bytes', 'backups', 'check', 'checks', 'completed', 'compressed', 'compressed_file', 'created_at', 'current_db_backup', 'db_path', 'end_time', 'error', 'failed', 'file_exists', 'file_size', 'filename', 'gzip_valid', 'kept_backups', 'last_backup', 'max_backups', 'newest_backup', 'oldest_backup', 'passed', 'path', 'rb', 'reason', 'removed_backups', 'rotation', 'should_create_backup', 'size_bytes', 'skipped', 'sqlite_valid', 'start_time', 'started', 'status', 'table_count', 'total_backups', 'valid', 'verification', 'wb']

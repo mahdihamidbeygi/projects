@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\fetcher\yahoo_finance_fetcher.py
-# hypothesis_version: 6.148.7
-
-[0.0, 1.0, 100, 429, 500, '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S%z', './/item', '1', 'Accept', 'Accept-Encoding', 'Accept-Language', 'Connection', 'Retry-After', 'User-Agent', 'Yahoo Finance', '[^\\w\\s]', '\\s+', 'ai', 'article', 'bitcoin', 'category', 'crypto', 'cryptocurrency', 'description', 'div.article-body', 'div.caas-body', 'div.canvas-body', 'div.story-body', 'earnings', 'en-US,en;q=0.5', 'ethereum', 'general', 'gzip, deflate', 'h1', 'html.parser', 'http://', 'https://', 'index', 'keep-alive', 'link', 'market', 'markets', 'p', 'profit', 'pubDate', 'pub_date_raw', 'published_at', 'quarterly', 'revenue', 'rss_description', 'scraped_content', 'script', 'software', 'source', 'stock', 'style', 'tech', 'technology', 'title', 'trading', 'url']

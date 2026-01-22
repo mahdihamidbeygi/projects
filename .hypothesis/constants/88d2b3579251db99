@@ -1,4 +1,0 @@
-# file: C:\Users\MHamidbeygi\projects\news_market_predictor\models.py
-# hypothesis_version: 6.148.7
-
-[-1.0, 0.0, 1.0, 'ExtractedEntity', 'MarketPrediction', 'NewsArticle', 'SentimentAnalysis', 'article_id', 'bearish', 'bullish', 'category', 'company', 'confidence', 'confidence_level', 'content', 'created_at', 'id', 'impact_direction', 'impact_magnitude', 'key_phrases', 'market_tone', 'metric', 'negative', 'neutral', 'positive', 'published_at', 'raw_metadata', 'reasoning', 'relevance_score', 'sentiment_score', 'source', 'stock_symbol', 'title', 'url', 'utf-8', 'w']
