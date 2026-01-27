@@ -137,6 +137,52 @@ class PipelineManager:
             self.stats["articles_failed"] += 1
             return self._create_error_result(str(e))
 
+    def run_daily_ai_analysis(
+        self, target_date: Optional[datetime] = None
+    ) -> Dict[str, Any]:
+        """
+        Run complete daily news analysis with error handling and resource management.
+
+        Args:
+            target_date: Date to analyze (defaults to today)
+
+        Returns:
+            Dictionary containing analysis results and statistics
+        """
+        if target_date is None:
+            target_date = datetime.now()
+
+        logger.info("Starting daily analysis for %s", target_date.strftime("%Y-%m-%d"))
+
+        try:
+            # Step 1: Fetch news articles with error handling
+            articles = self._fetch_news_with_recovery(target_date)
+            if not articles:
+                logger.warning(
+                    "No articles fetched for %s", target_date.strftime("%Y-%m-%d")
+                )
+                return self._create_result_summary([], [])
+
+            logger.info("Fetched %d articles for processing", len(articles))
+
+            # Step 2: Process articles with resource prioritization
+            predictions = self._process_articles_with_priority(articles)
+
+            # Step 3: Store results with backup recovery
+            if self.storage:
+                self._store_results_with_recovery(predictions)
+
+            logger.info(
+                "Daily analysis completed. Generated %d predictions", len(predictions)
+            )
+
+            return self._create_result_summary(articles, predictions)
+
+        except Exception as e:
+            logger.error("Critical error in daily analysis: %s", e)
+            self.stats["articles_failed"] += 1
+            return self._create_error_result(str(e))
+
     @with_error_recovery(fallback_value=[], log_errors=True)
     def _fetch_news_with_recovery(self, target_date: datetime) -> List[NewsArticle]:
         """Fetch news with error recovery."""
@@ -167,27 +213,27 @@ class PipelineManager:
             """Process a single article through the complete pipeline."""
             try:
                 self.stats["articles_processed"] += 1
-
+                f.write(f"Processing article {article}\n")
                 # Step 1: Process content
                 processed_article = self._process_content_with_recovery(article)
                 if not processed_article:
                     return []
-
+                f.write(f"Processed article {processed_article}\n")
                 # Step 2: Analyze sentiment
                 sentiment = self._analyze_sentiment_with_recovery(processed_article)
                 if not sentiment:
                     return []
-
+                f.write(f"Analyzed sentiment for article {sentiment}\n")
                 # Step 3: Extract entities
                 entities = self._extract_entities_with_recovery(processed_article)
                 if not entities:
                     return []
-
+                f.write(f"Extracted entities for article {entities}\n")
                 # Step 4: Generate predictions
                 predictions = self._generate_predictions_with_recovery(
                     processed_article, sentiment, entities
                 )
-
+                f.write(f"Generated predictions for article {predictions}\n")
                 self.stats["predictions_generated"] += len(predictions)
                 return predictions
 
@@ -198,9 +244,11 @@ class PipelineManager:
 
         # Process articles with resource prioritization
         try:
+            f = open("test.txt", "w")
             results = self.error_manager.process_with_priority(
                 articles, process_single_article
             )
+            f.close()
             for result in results:
                 if isinstance(result, list):
                     all_predictions.extend(result)

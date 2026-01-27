@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 
 from .exceptions import ConfigurationError
+from .llm.models import LLMConfiguration
 
 
 @dataclass
@@ -44,6 +45,7 @@ class Config:
     network: NetworkConfig = field(default_factory=NetworkConfig)
     processing: ProcessingConfig = field(default_factory=ProcessingConfig)
     storage: StorageConfig = field(default_factory=StorageConfig)
+    llm: LLMConfiguration = field(default_factory=LLMConfiguration)
     log_level: str = "INFO"
     log_file: str = "news_predictor.log"
 
@@ -85,6 +87,22 @@ class Config:
         config.log_level = os.getenv("LOG_LEVEL", "INFO")
         config.log_file = os.getenv("LOG_FILE", "news_predictor.log")
 
+        # LLM configuration
+        if os.getenv("LLM_ENABLED"):
+            config.llm.enabled = os.getenv("LLM_ENABLED").lower() == "true"
+        if os.getenv("LLM_DEFAULT_PROVIDER"):
+            config.llm.default_provider = os.getenv("LLM_DEFAULT_PROVIDER")
+        if os.getenv("LLM_MODEL_NAME"):
+            config.llm.model_name = os.getenv("LLM_MODEL_NAME")
+        if os.getenv("LLM_MAX_TOKENS"):
+            config.llm.max_tokens = int(os.getenv("LLM_MAX_TOKENS"))
+        if os.getenv("LLM_TEMPERATURE"):
+            config.llm.temperature = float(os.getenv("LLM_TEMPERATURE"))
+        if os.getenv("LLM_TIMEOUT_SECONDS"):
+            config.llm.timeout_seconds = int(os.getenv("LLM_TIMEOUT_SECONDS"))
+        if os.getenv("LLM_COST_LIMIT_PER_HOUR"):
+            config.llm.cost_limit_per_hour = float(os.getenv("LLM_COST_LIMIT_PER_HOUR"))
+
         return config
 
     def validate(self) -> None:
@@ -106,3 +124,6 @@ class Config:
 
         if self.storage.data_retention_days < 0:
             raise ConfigurationError("data_retention_days must be non-negative")
+
+        # Validate LLM configuration
+        self.llm.validate()

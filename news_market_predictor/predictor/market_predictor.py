@@ -71,28 +71,58 @@ class BasicMarketPredictor(MarketPredictor):
                 "revenue growth",
                 "profit increase",
                 "upgrade",
+                "outperform",
                 "acquisition",
                 "partnership",
                 "expansion",
                 "breakthrough",
                 "record high",
-                "outperform",
                 "bullish",
                 "buy rating",
+                "strong results",
+                "exceeded expectations",
+                "revenue surge",
+                "profit jump",
+                "market share gain",
+                "innovation",
+                "strategic alliance",
+                "merger",
+                "dividend increase",
+                "stock buyback",
+                "positive outlook",
+                "growth acceleration",
+                "market leadership",
+                "competitive advantage",
+                "cost savings",
+                "efficiency gains",
             ],
             "negative": [
                 "earnings miss",
                 "revenue decline",
                 "loss",
                 "downgrade",
+                "underperform",
                 "lawsuit",
                 "investigation",
                 "bankruptcy",
                 "layoffs",
                 "recall",
-                "scandal",
                 "bearish",
                 "sell rating",
+                "missed expectations",
+                "revenue drop",
+                "profit decline",
+                "market share loss",
+                "regulatory issues",
+                "debt concerns",
+                "liquidity problems",
+                "management changes",
+                "negative outlook",
+                "guidance cut",
+                "competition pressure",
+                "supply chain issues",
+                "cost increases",
+                "margin compression",
             ],
         }
 
@@ -309,21 +339,92 @@ class BasicMarketPredictor(MarketPredictor):
     def _analyze_financial_metrics_direction(self, content: str) -> str:
         """Analyze financial metrics to determine impact direction."""
 
-        positive_indicators = ["increase", "growth", "beat", "exceed", "higher", "up"]
-        negative_indicators = ["decrease", "decline", "miss", "lower", "down", "fall"]
+        positive_indicators = [
+            "increase",
+            "growth",
+            "beat",
+            "exceed",
+            "higher",
+            "up",
+            "surge",
+            "jump",
+            "rise",
+            "gain",
+            "improve",
+            "strong",
+            "robust",
+            "solid",
+            "outperform",
+            "accelerate",
+            "expand",
+            "boost",
+            "enhance",
+            "optimize",
+        ]
+        negative_indicators = [
+            "decrease",
+            "decline",
+            "miss",
+            "lower",
+            "down",
+            "fall",
+            "drop",
+            "weak",
+            "poor",
+            "disappointing",
+            "underperform",
+            "shrink",
+            "contract",
+            "reduce",
+            "cut",
+            "slash",
+            "deteriorate",
+            "worsen",
+            "struggle",
+            "challenge",
+        ]
 
         content_lower = content.lower()
 
-        positive_count = sum(
-            1 for indicator in positive_indicators if indicator in content_lower
-        )
-        negative_count = sum(
-            1 for indicator in negative_indicators if indicator in content_lower
-        )
+        # Weight matches by proximity to financial terms
+        financial_terms = [
+            "revenue",
+            "earnings",
+            "profit",
+            "sales",
+            "income",
+            "margin",
+            "ebitda",
+        ]
 
-        if positive_count > negative_count:
+        positive_score = 0
+        negative_score = 0
+
+        for indicator in positive_indicators:
+            matches = content_lower.count(indicator)
+            # Give higher weight if near financial terms
+            for term in financial_terms:
+                if (
+                    f"{term} {indicator}" in content_lower
+                    or f"{indicator} {term}" in content_lower
+                ):
+                    matches += 1  # Bonus for proximity to financial terms
+            positive_score += matches
+
+        for indicator in negative_indicators:
+            matches = content_lower.count(indicator)
+            # Give higher weight if near financial terms
+            for term in financial_terms:
+                if (
+                    f"{term} {indicator}" in content_lower
+                    or f"{indicator} {term}" in content_lower
+                ):
+                    matches += 1  # Bonus for proximity to financial terms
+            negative_score += matches
+
+        if positive_score > negative_score:
             return "positive"
-        if negative_count > positive_count:
+        if negative_score > positive_score:
             return "negative"
         return "neutral"
 
@@ -491,35 +592,93 @@ class BasicMarketPredictor(MarketPredictor):
         try:
             reasoning_parts = []
 
-            # Add sentiment reasoning
+            # Start with specific context from the entity
+            context_snippet = stock_entity.context[:100] if stock_entity.context else ""
+            if context_snippet:
+                reasoning_parts.append(
+                    f"Article context: '{context_snippet.strip()}...'"
+                )
+
+            # Add detailed sentiment analysis
             if sentiment.sentiment_score != 0:
-                tone_desc = f"{sentiment.market_tone} sentiment (score: {sentiment.sentiment_score:.2f})"
-                reasoning_parts.append(f"Article shows {tone_desc}")
-
-            # Add entity relevance
-            if stock_entity.relevance_score > 0.5:
-                reasoning_parts.append(
-                    f"High relevance to {stock_entity.entity_value} (score: {stock_entity.relevance_score:.2f})"
+                sentiment_strength = (
+                    "strong" if abs(sentiment.sentiment_score) > 0.5 else "moderate"
+                )
+                sentiment_direction = (
+                    "positive" if sentiment.sentiment_score > 0 else "negative"
                 )
 
-            # Add signal summary
-            signal_types = [s.get("type") for s in signals]
-            if len(signal_types) > 1:
+                if sentiment.key_phrases:
+                    key_phrases_str = ", ".join(sentiment.key_phrases[:2])
+                    reasoning_parts.append(
+                        f"Shows {sentiment_strength} {sentiment_direction} sentiment (score: {sentiment.sentiment_score:.2f}) "
+                        f"with key indicators: {key_phrases_str}"
+                    )
+                else:
+                    reasoning_parts.append(
+                        f"Shows {sentiment_strength} {sentiment_direction} sentiment (score: {sentiment.sentiment_score:.2f})"
+                    )
+
+            # Add specific signal analysis
+            for signal in signals:
+                signal_type = signal.get("type")
+                signal_direction = signal.get("direction")
+                signal_strength = signal.get("strength", 0)
+                signal_data = signal.get("data", {})
+
+                if signal_type == "keyword" and signal_strength > 0.3:
+                    pos_matches = signal_data.get("positive_matches", 0)
+                    neg_matches = signal_data.get("negative_matches", 0)
+                    if pos_matches > 0:
+                        reasoning_parts.append(
+                            f"Contains {pos_matches} positive market indicators"
+                        )
+                    if neg_matches > 0:
+                        reasoning_parts.append(
+                            f"Contains {neg_matches} negative market indicators"
+                        )
+
+                elif signal_type == "financial_metric" and signal_strength > 0.4:
+                    metrics = signal_data.get("metrics", [])
+                    if metrics:
+                        metric_summary = ", ".join(metrics[:2])  # Show first 2 metrics
+                        reasoning_parts.append(
+                            f"References financial metrics: {metric_summary}"
+                        )
+
+            # Add entity relevance with more context
+            if stock_entity.relevance_score > 0.7:
                 reasoning_parts.append(
-                    f"Based on {len(signal_types)} analysis factors: {', '.join(set(signal_types))}"
+                    f"High relevance to {stock_entity.entity_value} (mentioned prominently)"
+                )
+            elif stock_entity.relevance_score > 0.5:
+                reasoning_parts.append(
+                    f"Moderate relevance to {stock_entity.entity_value} (mentioned in context)"
                 )
 
-            # Add key phrases if available
-            if sentiment.key_phrases:
-                key_phrases_str = ", ".join(
-                    sentiment.key_phrases[:3]
-                )  # Limit to first 3
-                reasoning_parts.append(f"Key phrases: {key_phrases_str}")
+            # Add confidence qualifier based on signal strength
+            total_signal_strength = (
+                sum(s.get("strength", 0) for s in signals) / len(signals)
+                if signals
+                else 0
+            )
+            if total_signal_strength > 0.7:
+                confidence_desc = "High confidence prediction"
+            elif total_signal_strength > 0.4:
+                confidence_desc = "Moderate confidence prediction"
+            else:
+                confidence_desc = "Low confidence prediction"
+
+            reasoning_parts.append(confidence_desc)
 
             if reasoning_parts:
                 return ". ".join(reasoning_parts) + "."
 
-            return f"Analysis of {stock_entity.entity_value} based on article content."
+            # Fallback with more specific context
+            if stock_entity.context:
+                return f"Analysis of {stock_entity.entity_value} based on article mention: '{stock_entity.context[:80]}...'"
+
+            return f"Analysis of {stock_entity.entity_value} based on article content and market indicators."
 
         except Exception as e:
             logger.error("Error generating reasoning: %s", e)
